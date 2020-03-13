@@ -9,6 +9,7 @@ const mqtt = require('mqtt');
 const crypto = require('crypto');
 const request = require('request');
 const EventEmitter = require('events');
+const { TimeoutError } = require('promise-timeout')
 
 const SECRET = '23x17ahWarFH6w29';
 const MEROSS_URL = 'https://iot.meross.com';
@@ -52,6 +53,15 @@ class MerossCloud extends EventEmitter {
     }
 
     authenticatedPost(url, paramsData, callback) {
+        const func = this.authenticatedPost.bind(this)
+        if (callback === undefined) {
+            return new Promise((resolve, reject) => {
+                func(url, paramsData, (err, result) => {
+                    err ? reject(err) : resolve(result)
+                })
+            })
+        }
+
         const nonce = generateRandomString(16);
         const timestampMillis = Date.now();
         const loginParams = encodeParams(paramsData);
@@ -104,30 +114,30 @@ class MerossCloud extends EventEmitter {
 
     connectDevice(deviceId, deviceObj, dev) {
         this.devices[deviceId] = deviceObj;
-        this.devices[deviceId].on('connected', () => {
-            this.emit('connected', deviceId);
-        });
-        this.devices[deviceId].on('close', (error) => {
-            this.emit('close', deviceId, error);
-        });
-        this.devices[deviceId].on('error', (error) => {
+        deviceObj.on('connected', () => this.emit('connected', deviceId));
+        deviceObj.on('close', (error) => this.emit('close', deviceId, error));
+        deviceObj.on('error', (error) => {
             if (!this.listenerCount('error')) return;
             this.emit('error', deviceId, error);
         });
-        this.devices[deviceId].on('reconnect', () => {
-            this.emit('reconnect', deviceId);
-        });
-        this.devices[deviceId].on('data', (namespace, payload) => {
-            this.emit('data', deviceId, namespace, payload);
-        });
-        this.devices[deviceId].on('rawData', (message) => {
-            this.emit('rawData', deviceId, message);
-        });
-        this.emit('deviceInitialized', deviceId, dev, this.devices[deviceId]);
-        this.devices[deviceId].connect();
+        deviceObj.on('reconnect', () => this.emit('reconnect', deviceId));
+        deviceObj.on('data', (namespace, payload) => this.emit('data', deviceId, namespace, payload));
+        deviceObj.on('rawData', (message) => this.emit('rawData', deviceId, message));
+        this.emit('deviceInitialized', deviceId, dev, deviceObj);
+        deviceObj.connect();
+        return deviceObj
     }
 
     connect(callback) {
+        const func = this.connect.bind(this)
+        if (callback === undefined) {
+            return new Promise((resolve, reject) => {
+                func((err, result) => {
+                    err ? reject(err) : resolve(result)
+                })
+            })
+        }
+
         const data = {
             email: this.options.email,
             password: this.options.password
@@ -296,6 +306,15 @@ class MerossCloudDevice extends EventEmitter {
     }
 
     publishMessage(method, namespace, payload, callback) {
+        const func = this.publishMessage.bind(this)
+        if (callback === undefined) {
+            return new Promise((resolve, reject) => {
+                func(method, namespace, payload, (err, result) => {
+                    err ? reject(err) : resolve(result)
+                })
+            })
+        }
+
         // if not subscribed und so ...
         const messageId = crypto.createHash('md5').update(generateRandomString(16)).digest("hex");
         const timestamp = Math.round(new Date().getTime() / 1000);  //int(round(time.time()))
@@ -321,7 +340,7 @@ class MerossCloudDevice extends EventEmitter {
             this.waitingMessageIds[messageId].timeout = setTimeout(() => {
                 //console.log('TIMEOUT');
                 if (this.waitingMessageIds[messageId].callback) {
-                    this.waitingMessageIds[messageId].callback(new Error('Timeout'));
+                    this.waitingMessageIds[messageId].callback(new TimeoutError());
                 }
                 delete this.waitingMessageIds[messageId];
             }, 20000);
