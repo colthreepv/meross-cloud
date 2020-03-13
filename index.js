@@ -9,7 +9,7 @@ const mqtt = require('mqtt');
 const crypto = require('crypto');
 const request = require('request');
 const EventEmitter = require('events');
-const { TimeoutError } = require('promise-timeout')
+const { timeout, TimeoutError } = require('promise-timeout')
 
 const SECRET = '23x17ahWarFH6w29';
 const MEROSS_URL = 'https://iot.meross.com';
@@ -207,6 +207,7 @@ class MerossCloud extends EventEmitter {
 }
 
 class MerossCloudDevice extends EventEmitter {
+    COMMAND_TIMEOUT = 5000;
 
     constructor(token, key, userId, dev) {
         super();
@@ -218,6 +219,8 @@ class MerossCloudDevice extends EventEmitter {
         this.key = key;
         this.userId = userId;
         this.dev = dev;
+        this.status = 'init';
+        this.queuedCommands = [];
     }
 
     connect() {
@@ -260,6 +263,11 @@ class MerossCloudDevice extends EventEmitter {
                 //console.log('User Response Subscribe Done');
             });
             this.emit('connected');
+            this.status = 'online';
+            while (this.queuedCommands.length > 0) {
+                const resolveFn = this.queuedCommands.pop()
+                resolveFn()
+            }
         });
 
         this.client.on('message', (topic, message) => {
@@ -271,11 +279,9 @@ class MerossCloudDevice extends EventEmitter {
             // {"header":{"messageId":"14b4951d0627ea904dd8685c480b7b2e","namespace":"Appliance.Control.ToggleX","method":"PUSH","payloadVersion":1,"from":"/appliance/1806299596727829081434298f15a991/publish","timestamp":1539602435,"timestampMs":427,"sign":"f33bb034ac2d5d39289e6fa3dcead081"},"payload":{"togglex":[{"channel":0,"onoff":0,"lmTime":1539602434},{"channel":1,"onoff":0,"lmTime":1539602434},{"channel":2,"onoff":0,"lmTime":1539602434},{"channel":3,"onoff":0,"lmTime":1539602434},{"channel":4,"onoff":0,"lmTime":1539602434}]}}
 
             // If the message is the RESP for some previous action, process return the control to the "stopped" method.
-            if (this.waitingMessageIds[message.header.messageId]) {
-                if (this.waitingMessageIds[message.header.messageId].timeout) {
-                    clearTimeout(this.waitingMessageIds[message.header.messageId].timeout);
-                }
-                this.waitingMessageIds[message.header.messageId].callback(null, message.payload || message);
+            const resolveForThisMessage = this.waitingMessageIds[message.header.messageId];
+            if (resolveForThisMessage != null) {
+                resolveForThisMessage(message.payload || message)
                 delete this.waitingMessageIds[message.header.messageId];
             }
             else if (message.header.method === "PUSH") { // Otherwise process it accordingly
@@ -289,9 +295,11 @@ class MerossCloudDevice extends EventEmitter {
         });
         this.client.on('close', (error) => {
             this.emit('close', error ? error.toString() : null);
+            this.status = 'offline';
         });
         this.client.on('reconnect', () => {
             this.emit('reconnect');
+            this.status = 'offline';
         });
 
         // mqtt.Client#end([force], [options], [cb])
@@ -302,15 +310,25 @@ class MerossCloudDevice extends EventEmitter {
         this.client.end(force);
     }
 
-    publishMessage(method, namespace, payload, callback) {
-        const func = this.publishMessage.bind(this)
-        if (callback === undefined) {
-            return new Promise((resolve, reject) => {
-                func(method, namespace, payload, (err, result) => {
-                    err ? reject(err) : resolve(result)
-                })
-            })
+    async publishMessage(method, namespace, payload) {
+        // helper to queue commands before the device is connected
+        if (this.status !== 'online') {
+            let resolve
+            // we create a idle promise - connectPromise
+            const connectPromise = new Promise((res, rej) => { resolve = res })
+            // connectPromise will get resolved when the device connects
+            this.queuedCommands.push(resolve)
+            // when the device is connected, the futureCommand will be executed
+            // that is exactly the same command issued now, but in the future
+            const futureCommand = () => this.publishMessage(method, namespace, payload)
+            // we return immediately an 'idle' promise, that when it gets resolved
+            // it will then execute the futureCommand
+            // IF the above takes too much time, the command will fail with a TimeoutError
+            return timeout(connectPromise.then(futureCommand), this.COMMAND_TIMEOUT)
         }
+
+        let resolve
+        const commandPromise = new Promise((res) => { resolve = res })
 
         // if not subscribed und so ...
         const messageId = crypto.createHash('md5').update(generateRandomString(16)).digest("hex");
@@ -331,20 +349,10 @@ class MerossCloudDevice extends EventEmitter {
             "payload": payload
         };
         this.client.publish('/appliance/' + this.dev.uuid + '/subscribe', JSON.stringify(data));
-        if (callback == null) console.log('callback is undefined, why?')
-        if (callback) {
-            this.waitingMessageIds[messageId] = {};
-            this.waitingMessageIds[messageId].callback = callback;
-            this.waitingMessageIds[messageId].timeout = setTimeout(() => {
-                //console.log('TIMEOUT');
-                if (this.waitingMessageIds[messageId].callback) {
-                    this.waitingMessageIds[messageId].callback(new TimeoutError());
-                }
-                delete this.waitingMessageIds[messageId];
-            }, 20000);
-        }
         this.emit('rawSendData', data);
-        return messageId;
+
+        this.waitingMessageIds[messageId] = resolve
+        return timeout(commandPromise, this.COMMAND_TIMEOUT)
     }
 
 
