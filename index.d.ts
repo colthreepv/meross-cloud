@@ -74,26 +74,40 @@ import { EventEmitter } from 'events'
   export class MerossCloudDevice extends EventEmitter {
     connect(): void
     disconnect(force: boolean): void
-    publishMessage(method: 'GET' | 'SET', namespace: string, payload: any, callback: ErrorCallback): void
-    getSystemAllData(callback: Callback<any>): void
-    getSystemDebug(callback: Callback<any>): void
-    getSystemAbilities(callback: Callback<any>): void
-    getSystemReport(callback: Callback<any>): void
-    getSystemRuntime(callback: Callback<any>): void
-    getSystemDNDMode(callback: Callback<any>): void
-    getOnlineStatus(callback: Callback<any>): void
-    getConfigWifiList(callback: Callback<any>): void
-    getConfigTrace(callback: Callback<any>): void
-    getControlPowerConsumption(callback: Callback<any>): void
-    getControlPowerConsumptionX(callback: Callback<GetControlPowerConsumptionXResponse>): void
-    getControlElectricity(callback: Callback<GetControlElectricityResponse>): void
+    publishMessage(method: 'GET' | 'SET', namespace: string, payload: any, callback?: Callback<any>): number
+    publishMessage(method: 'GET' | 'SET', namespace: string, payload: any): Promise<any>
+
+    getSystemAllData(callback: Callback<any>): number
+    getSystemAllData(): Promise<void>
+    getSystemDebug(callback: Callback<any>): number
+    getSystemDebug(): Promise<void>
+    getSystemAbilities(callback: Callback<any>): number
+    getSystemAbilities(): Promise<void>
+    getSystemReport(callback: Callback<any>): number
+    getSystemReport(): Promise<void>
+    getSystemRuntime(callback: Callback<any>): number
+    getSystemRuntime(): Promise<void>
+    getSystemDNDMode(callback: Callback<any>): number
+    getSystemDNDMode(): Promise<void>
+    getOnlineStatus(callback: Callback<any>): number
+    getOnlineStatus(): Promise<void>
+    getConfigWifiList(callback: Callback<any>): number
+    getConfigWifiList(): Promise<void>
+    getConfigTrace(callback: Callback<any>): number
+    getConfigTrace(): Promise<void>
+    getControlPowerConsumption(callback: Callback<any>): number
+    getControlPowerConsumption(): Promise<void>
+    getControlPowerConsumptionX(callback: Callback<GetControlPowerConsumptionXResponse>): number
+    getControlPowerConsumptionX(): Promise<GetControlPowerConsumptionXResponse>
+    getControlElectricity(callback: Callback<GetControlElectricityResponse>): number
+    getControlElectricity(): Promise<GetControlElectricityResponse>
     
-    controlToggle(onoff: boolean, callback: Callback<any>): void
-    controlToggleX(channel, onoff: boolean, callback: Callback<any>): void
-    controlSpray(channel, mode: number, callback: Callback<any>): void
-    controlGarageDoor(channel, open: boolean, callback: Callback<any>): void
-    controlLight(light, callback: Callback<any>): void
-    setSystemDNDMode(onoff: boolean, callback: Callback<any>): void
+    controlToggle(onoff: boolean, callback: Callback<any>): number
+    controlToggleX(channel: any, onoff: boolean, callback: Callback<any>): number
+    controlSpray(channel: any, mode: number, callback: Callback<any>): number
+    controlGarageDoor(channel: any, open: boolean, callback: Callback<any>): number
+    controlLight(light: any, callback: Callback<any>): number
+    setSystemDNDMode(onoff: boolean, callback: Callback<any>): number
   }
   
   export default MerossCloud
