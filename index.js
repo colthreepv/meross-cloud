@@ -128,7 +128,7 @@ class MerossCloud extends EventEmitter {
         return deviceObj
     }
 
-    connect(callback) {
+    async connect(callback) {
         const func = this.connect.bind(this)
         if (callback === undefined) {
             return new Promise((resolve, reject) => {
@@ -143,45 +143,42 @@ class MerossCloud extends EventEmitter {
             password: this.options.password
         };
 
-        this.authenticatedPost(LOGIN_URL, data, (err, loginResponse) => {
-            //console.log(loginResponse);
-            if (err) {
-                callback && callback(err);
-                return;
+        let loginResponse
+        try {
+            loginResponse = await this.authenticatedPost(LOGIN_URL, data)
+        } catch (err) {
+            callback && callback(err);
+            return;
+        }
+        this.token = loginResponse.token;
+        this.key = loginResponse.key;
+        this.userId = loginResponse.userid;
+        this.userEmail = loginResponse.email;
+        this.authenticated = true;
+
+        const deviceList = await this.authenticatedPost(DEV_LIST, {})
+        if (deviceList == null || !Array.isArray(deviceList)) {
+            callback(new Error('Unexpected response from meross servers'));
+            return;
+        }
+        // promise array of devices
+        // this is useful to return either a value or a Promise of a value,
+        // in this case the 'value' is a MerossCloudDevice
+        const devices = await Promise.all(deviceList.map(async (dev) => {
+            if (dev.deviceType === 'msh300') {
+                this.options.logger && this.options.logger(dev.uuid + ' Detected Hub');
+
+                const subDeviceList = await this.authenticatedPost(SUBDEV_LIST, {uuid: dev.uuid});
+                return this.connectDevice(
+                    dev.uuid,
+                    new MerossCloudHubDevice(this.token, this.key, this.userId, dev, subDeviceList),
+                    dev
+                );
             }
-            this.token = loginResponse.token;
-            this.key = loginResponse.key;
-            this.userId = loginResponse.userid;
-            this.userEmail = loginResponse.email;
-            this.authenticated = true;
-
-            this.authenticatedPost(DEV_LIST, {}, (err, deviceList) => {
-                //console.log(JSON.stringify(deviceList, null, 2));
-
-                let initCounter = 0;
-                let deviceListLength = 0;
-                if (deviceList && Array.isArray(deviceList)) {
-                    deviceListLength = deviceList.length;
-                    deviceList.forEach((dev) => {
-                        //const deviceType = dev.deviceType;
-                        if (dev.deviceType === 'msh300') {
-                            this.options.logger && this.options.logger(dev.uuid + ' Detected Hub');
-                            this.authenticatedPost(SUBDEV_LIST, {uuid: dev.uuid}, (err, subDeviceList) => {
-                                this.connectDevice(dev.uuid, new MerossCloudHubDevice(this.token, this.key, this.userId, dev, subDeviceList), dev);
-                                initCounter++;
-                                if (initCounter === deviceListLength) callback && callback(null, deviceListLength);
-                            });
-                        } else {
-                            this.connectDevice(dev.uuid, new MerossCloudDevice(this.token, this.key, this.userId, dev), dev);
-                            initCounter++;
-                        }
-                    });
-                }
-
-                if (initCounter === deviceListLength) callback && callback(null, deviceListLength);
-            });
-        });
-
+            return this.connectDevice(dev.uuid, new MerossCloudDevice(this.token, this.key, this.userId, dev), dev);
+        }));
+        callback(null, devices);
+        return;
 
         /*
 
@@ -334,6 +331,7 @@ class MerossCloudDevice extends EventEmitter {
             "payload": payload
         };
         this.client.publish('/appliance/' + this.dev.uuid + '/subscribe', JSON.stringify(data));
+        if (callback == null) console.log('callback is undefined, why?')
         if (callback) {
             this.waitingMessageIds[messageId] = {};
             this.waitingMessageIds[messageId].callback = callback;

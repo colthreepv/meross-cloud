@@ -1,5 +1,6 @@
 declare module 'meross-cloud' {
 import { EventEmitter } from 'events'
+import { MqttClient } from 'mqtt'
 
     export interface DeviceDefinition {
     uuid: string
@@ -62,18 +63,37 @@ import { EventEmitter } from 'events'
   export type Callback<T> = (error: Error | null, data: T) => void
   export type ErrorCallback = (error: Error | null) => void
   export type DeviceInitializedEvent = 'deviceInitialized'
-  
   export type DeviceInitializedCallback = (deviceId: string, deviceDef: DeviceDefinition, device: MerossCloudDevice) => void
-  
+
+  export type DeviceEvents = 'connected' | 'data' | 'rawData' | 'close' | 'reconnect' | 'error'
+
   export class MerossCloud extends EventEmitter {
     constructor (options: CloudOptions)
     connect (callback: Callback<number>): void
+    connect (): Promise<MerossCloudDevice[]>
+
     on(name: DeviceInitializedEvent, handler: DeviceInitializedCallback): this
+
+    connectDevice(deviceId: string, deviceObj: MerossCloudDevice, dev: DeviceDefinition): MerossCloudDevice
+
+    authenticatedPost(url: string, paramsData: Object, callback: Callback<any>): void
+    authenticatedPost(url: string, paramsData: Object): Promise<any>
   }
   
   export class MerossCloudDevice extends EventEmitter {
+    clientResponseTopic: string
+    waitingMessageIds: Record<string, any>
+    token: string
+    key: string
+    userId: string
+    dev: DeviceDefinition
+    client: MqttClient
+
     connect(): void
     disconnect(force: boolean): void
+
+    on(event: DeviceEvents, listener: (...args: any[]) => void): this;
+
     publishMessage(method: 'GET' | 'SET', namespace: string, payload: any, callback?: Callback<any>): number
     publishMessage(method: 'GET' | 'SET', namespace: string, payload: any): Promise<any>
 
