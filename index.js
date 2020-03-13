@@ -328,6 +328,8 @@ class MerossCloudDevice extends EventEmitter {
         }
 
         let resolve
+        // create of an waiting Promise, it will get (maybe) resolved if the device
+        // responds in time
         const commandPromise = new Promise((res) => { resolve = res })
 
         // if not subscribed und so ...
@@ -351,106 +353,107 @@ class MerossCloudDevice extends EventEmitter {
         this.client.publish('/appliance/' + this.dev.uuid + '/subscribe', JSON.stringify(data));
         this.emit('rawSendData', data);
 
+        // the resolving function gets saved in the messageId database
         this.waitingMessageIds[messageId] = resolve
+        // the command returns with a timeout
         return timeout(commandPromise, this.COMMAND_TIMEOUT)
     }
 
 
 
-    getSystemAllData(callback) {
+    async getSystemAllData() {
         // {"all":{"system":{"hardware":{"type":"mss425e","subType":"eu","version":"2.0.0","chipType":"mt7682","uuid":"1806299596727829081434298f15a991","macAddress":"34:29:8f:15:a9:91"},"firmware":{"version":"2.1.2","compileTime":"2018/08/13 10:42:53 GMT +08:00","wifiMac":"34:31:c4:73:3c:7f","innerIp":"192.168.178.86","server":"iot.meross.com","port":2001,"userId":64416},"time":{"timestamp":1539612975,"timezone":"Europe/Berlin","timeRule":[[1521939600,7200,1],[1540688400,3600,0],[1553994000,7200,1],[1572138000,3600,0],[1585443600,7200,1],[1603587600,3600,0],[1616893200,7200,1],[1635642000,3600,0],[1648342800,7200,1],[1667091600,3600,0],[1679792400,7200,1],[1698541200,3600,0],[1711846800,7200,1],[1729990800,3600,0],[1743296400,7200,1],[1761440400,3600,0],[1774746000,7200,1],[1792890000,3600,0],[1806195600,7200,1],[1824944400,3600,0]]},"online":{"status":1}},"digest":{"togglex":[{"channel":0,"onoff":0,"lmTime":1539608841},{"channel":1,"onoff":0,"lmTime":1539608841},{"channel":2,"onoff":0,"lmTime":1539608841},{"channel":3,"onoff":0,"lmTime":1539608841},{"channel":4,"onoff":0,"lmTime":1539608841}],"triggerx":[],"timerx":[]}}}
-
-        return this.publishMessage("GET", "Appliance.System.All", {}, callback);
+        return this.publishMessage("GET", "Appliance.System.All", {})
     }
 
-    getSystemDebug(callback) {
+    async getSystemDebug() {
         // {"debug":{"system":{"version":"2.1.2","sysUpTime":"114h16m34s","localTimeOffset":7200,"localTime":"Mon Oct 15 16:23:03 2018","suncalc":"7:42;19:49"},"network":{"linkStatus":"connected","signal":50,"ssid":"ApollonHome","gatewayMac":"34:31:c4:73:3c:7f","innerIp":"192.168.178.86","wifiDisconnectCount":1},"cloud":{"activeServer":"iot.meross.com","mainServer":"iot.meross.com","mainPort":2001,"secondServer":"smart.meross.com","secondPort":2001,"userId":64416,"sysConnectTime":"Mon Oct 15 08:06:40 2018","sysOnlineTime":"6h16m23s","sysDisconnectCount":5,"pingTrace":[]}}}
-        return this.publishMessage("GET", "Appliance.System.Debug", {}, callback);
+        return this.publishMessage("GET", "Appliance.System.Debug", {});
     }
 
-    getSystemAbilities(callback) {
+    async getSystemAbilities() {
         // {"payloadVersion":1,"ability":{"Appliance.Config.Key":{},"Appliance.Config.WifiList":{},"Appliance.Config.Wifi":{},"Appliance.Config.Trace":{},"Appliance.System.All":{},"Appliance.System.Hardware":{},"Appliance.System.Firmware":{},"Appliance.System.Debug":{},"Appliance.System.Online":{},"Appliance.System.Time":{},"Appliance.System.Ability":{},"Appliance.System.Runtime":{},"Appliance.System.Report":{},"Appliance.System.Position":{},"Appliance.System.DNDMode":{},"Appliance.Control.Multiple":{"maxCmdNum":5},"Appliance.Control.ToggleX":{},"Appliance.Control.TimerX":{"sunOffsetSupport":1},"Appliance.Control.TriggerX":{},"Appliance.Control.Bind":{},"Appliance.Control.Unbind":{},"Appliance.Control.Upgrade":{},"Appliance.Digest.TriggerX":{},"Appliance.Digest.TimerX":{}}}
-        return this.publishMessage("GET", "Appliance.System.Ability", {}, callback);
+        return this.publishMessage("GET", "Appliance.System.Ability", {});
     }
 
-    getSystemReport(callback) {
-        return this.publishMessage("GET", "Appliance.System.Report", {}, callback);
+    async getSystemReport() {
+        return this.publishMessage("GET", "Appliance.System.Report", {});
     }
 
-    getSystemRuntime(callback) { // Wifi Strength
+    async getSystemRuntime() { // Wifi Strength
         // "payload": {
         // 		"runtime": {
         // 			"signal": 86
         // 		}
         // 	}
-        return this.publishMessage("GET", "Appliance.System.Runtime", {}, callback);
+        return this.publishMessage("GET", "Appliance.System.Runtime", {});
     }
 
-    getSystemDNDMode(callback) { // DND Mode (LED)
+    async getSystemDNDMode() { // DND Mode (LED)
         // "payload": {
         // 		"DNDMode": {
         // 			"mode": 0
         // 		}
         // 	}
-        return this.publishMessage("GET", "Appliance.System.DNDMode", {}, callback);
+        return this.publishMessage("GET", "Appliance.System.DNDMode", {});
     }
 
-    setSystemDNDMode(onoff, callback) {
+    setSystemDNDMode(onoff) {
         const payload = {"DNDMode": {"mode": onoff ? 1 : 0}};
-        return this.publishMessage("SET", "Appliance.System.DNDMode", payload, callback);
+        return this.publishMessage("SET", "Appliance.System.DNDMode", payload);
     }
 
 
-    getOnlineStatus(callback) {
-        return this.publishMessage("GET", "Appliance.System.Online", {}, callback);
+    async getOnlineStatus() {
+        return this.publishMessage("GET", "Appliance.System.Online", {});
     }
 
-    getConfigWifiList(callback) {
+    async getConfigWifiList() {
         // {"wifiList":[]}
-        return this.publishMessage("GET", "Appliance.Config.WifiList", {}, callback);
+        return this.publishMessage("GET", "Appliance.Config.WifiList", {});
     }
 
-    getConfigTrace(callback) {
+    async getConfigTrace() {
         // {"trace":{"ssid":"","code":0,"info":""}}
-        return this.publishMessage("GET", "Appliance.Config.Trace", {}, callback);
+        return this.publishMessage("GET", "Appliance.Config.Trace", {});
     }
 
-    getControlPowerConsumption(callback) {
-        return this.publishMessage("GET", "Appliance.Control.Consumption", {}, callback);
+    async getControlPowerConsumption() {
+        return this.publishMessage("GET", "Appliance.Control.Consumption", {});
     }
 
-    getControlPowerConsumptionX(callback) {
-        return this.publishMessage("GET", "Appliance.Control.ConsumptionX", {}, callback);
+    async getControlPowerConsumptionX() {
+        return this.publishMessage("GET", "Appliance.Control.ConsumptionX", {});
     }
 
-    getControlElectricity(callback) {
-        return this.publishMessage("GET", "Appliance.Control.Electricity", {}, callback);
+    async getControlElectricity() {
+        return this.publishMessage("GET", "Appliance.Control.Electricity", {});
     }
 
-    controlToggle(onoff, callback) {
+    async controlToggle(onoff) {
         const payload = {"toggle": {"onoff": onoff ? 1 : 0}};
-        return this.publishMessage("SET", "Appliance.Control.Toggle", payload, callback);
+        return this.publishMessage("SET", "Appliance.Control.Toggle", payload);
     }
 
-    controlToggleX(channel, onoff, callback) {
+    async controlToggleX(channel, onoff) {
         const payload = {"togglex": {"channel": channel, "onoff": onoff ? 1 : 0}};
-        return this.publishMessage("SET", "Appliance.Control.ToggleX", payload, callback);
+        return this.publishMessage("SET", "Appliance.Control.ToggleX", payload);
     }
 
-    controlSpray(channel, mode, callback) {
+    async controlSpray(channel, mode) {
         const payload = {"spray": {"channel": channel, "mode": mode || 0}};
-        return this.publishMessage("SET", "Appliance.Control.Spray", payload, callback);
+        return this.publishMessage("SET", "Appliance.Control.Spray", payload);
     }
 
-    controlGarageDoor(channel, open, callback) {
+    async controlGarageDoor(channel, open) {
         const payload = {"state": {"channel": channel, "open": open ? 1 : 0, "uuid": this.dev.uuid}};
-        return this.publishMessage("SET", "Appliance.GarageDoor.State", payload, callback);
+        return this.publishMessage("SET", "Appliance.GarageDoor.State", payload);
     }
 
     // {"light":{"capacity":6,"channel":0,"rgb":289,"temperature":80,"luminance":100}}
-    controlLight(light, callback) {
+    async controlLight(light) {
         const payload = {"light": light};
-        return this.publishMessage("SET", "Appliance.Control.Light", payload, callback);
+        return this.publishMessage("SET", "Appliance.Control.Light", payload);
     }
 }
 

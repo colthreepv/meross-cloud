@@ -88,6 +88,8 @@ import { MqttClient } from 'mqtt'
     userId: string
     dev: DeviceDefinition
     client: MqttClient
+    status: 'init' | 'online' | 'offline'
+    queuedCommands: []
 
     connect(): void
     disconnect(force: boolean): void
@@ -97,31 +99,19 @@ import { MqttClient } from 'mqtt'
     publishMessage(method: 'GET' | 'SET', namespace: string, payload: any, callback?: Callback<any>): number
     publishMessage(method: 'GET' | 'SET', namespace: string, payload: any): Promise<any>
 
-    getSystemAllData(callback: Callback<any>): number
     getSystemAllData(): Promise<void>
-    getSystemDebug(callback: Callback<any>): number
     getSystemDebug(): Promise<void>
-    getSystemAbilities(callback: Callback<any>): number
     getSystemAbilities(): Promise<void>
-    getSystemReport(callback: Callback<any>): number
     getSystemReport(): Promise<void>
-    getSystemRuntime(callback: Callback<any>): number
     getSystemRuntime(): Promise<void>
-    getSystemDNDMode(callback: Callback<any>): number
     getSystemDNDMode(): Promise<void>
-    getOnlineStatus(callback: Callback<any>): number
     getOnlineStatus(): Promise<void>
-    getConfigWifiList(callback: Callback<any>): number
     getConfigWifiList(): Promise<void>
-    getConfigTrace(callback: Callback<any>): number
     getConfigTrace(): Promise<void>
-    getControlPowerConsumption(callback: Callback<any>): number
     getControlPowerConsumption(): Promise<void>
-    getControlPowerConsumptionX(callback: Callback<GetControlPowerConsumptionXResponse>): number
     getControlPowerConsumptionX(): Promise<GetControlPowerConsumptionXResponse>
-    getControlElectricity(callback: Callback<GetControlElectricityResponse>): number
     getControlElectricity(): Promise<GetControlElectricityResponse>
-    
+
     controlToggle(onoff: boolean, callback: Callback<any>): number
     controlToggleX(channel: any, onoff: boolean, callback: Callback<any>): number
     controlSpray(channel: any, mode: number, callback: Callback<any>): number
