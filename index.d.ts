@@ -2,6 +2,8 @@ declare module 'meross-cloud' {
 import { EventEmitter } from 'events'
 import { MqttClient } from 'mqtt'
 
+    export { TimeoutError } from 'promise-timeout'
+
     export interface DeviceDefinition {
     uuid: string
     onlineStatus: number

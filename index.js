@@ -495,4 +495,5 @@ class MerossCloudHubDevice extends MerossCloudDevice {
 
 }
 
-module.exports = MerossCloud;
+exports = module.exports = MerossCloud;
+exports.TimeoutError = TimeoutError;
