@@ -108,28 +108,27 @@ import { MqttClient } from 'mqtt'
 
     on(event: DeviceEvents, listener: (...args: any[]) => void): this;
 
-    publishMessage(method: 'GET' | 'SET', namespace: string, payload: any, callback?: Callback<any>): number
-    publishMessage(method: 'GET' | 'SET', namespace: string, payload: any): Promise<any>
+    publishMessage(method: 'GET' | 'SET', namespace: string, payload: any): Promise<MerossMessage<any>>
 
-    getSystemAllData(): Promise<void>
-    getSystemDebug(): Promise<void>
-    getSystemAbilities(): Promise<void>
-    getSystemReport(): Promise<void>
-    getSystemRuntime(): Promise<void>
-    getSystemDNDMode(): Promise<void>
-    getOnlineStatus(): Promise<void>
-    getConfigWifiList(): Promise<void>
-    getConfigTrace(): Promise<void>
-    getControlPowerConsumption(): Promise<void>
+    getSystemAllData(): Promise<MerossMessage<any>>
+    getSystemDebug(): Promise<MerossMessage<any>>
+    getSystemAbilities(): Promise<MerossMessage<any>>
+    getSystemReport(): Promise<MerossMessage<any>>
+    getSystemRuntime(): Promise<MerossMessage<any>>
+    getSystemDNDMode(): Promise<MerossMessage<any>>
+    getOnlineStatus(): Promise<MerossMessage<any>>
+    getConfigWifiList(): Promise<MerossMessage<any>>
+    getConfigTrace(): Promise<MerossMessage<any>>
+    getControlPowerConsumption(): Promise<MerossMessage<any>>
     getControlPowerConsumptionX(): Promise<MerossMessage<GetControlPowerConsumptionXResponse>>
     getControlElectricity(): Promise<MerossMessage<GetControlElectricityResponse>>
 
-    controlToggle(onoff: boolean, callback: Callback<any>): number
-    controlToggleX(channel: any, onoff: boolean, callback: Callback<any>): number
-    controlSpray(channel: any, mode: number, callback: Callback<any>): number
-    controlGarageDoor(channel: any, open: boolean, callback: Callback<any>): number
-    controlLight(light: any, callback: Callback<any>): number
-    setSystemDNDMode(onoff: boolean, callback: Callback<any>): number
+    controlToggle(onoff: boolean): Promise<MerossMessage<any>>
+    controlToggleX(channel: any, onoff: boolean): Promise<MerossMessage<any>>
+    controlSpray(channel: any, mode: number): Promise<MerossMessage<any>>
+    controlGarageDoor(channel: any, open: boolean): Promise<MerossMessage<any>>
+    controlLight(light: any): Promise<MerossMessage<any>>
+    setSystemDNDMode(onoff: boolean): Promise<MerossMessage<any>>
   }
 
   export default MerossCloud

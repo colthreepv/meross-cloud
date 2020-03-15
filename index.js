@@ -84,7 +84,7 @@ class MerossCloud extends EventEmitter {
         this.options.logger && this.options.logger('HTTP-Call: ' + JSON.stringify(options))
         // Perform the request.
         request(options, (error, response, body) => {
-            if (!error && response && response.statusCode == 200 && body) {
+            if (!error && response && response.statusCode === 200 && body) {
                 this.options.logger && this.options.logger('HTTP-Response OK: ' + body)
                 try {
                     body = JSON.parse(body)
@@ -189,14 +189,14 @@ class MerossCloud extends EventEmitter {
 
     disconnectAll (force) {
         for (const deviceId in this.devices) {
-            if (!this.devices.hasOwnProperty(deviceId)) continue
+            if (!Object.prototype.hasOwnProperty.call(this.devices, deviceId)) continue
             this.devices[deviceId].disconnect(force)
         }
     }
 }
 
 class MerossCloudDevice extends EventEmitter {
-    constructor (token, key, userId, dev, timeout) {
+    constructor (token, key, userId, dev) {
         super()
 
         this.clientResponseTopic = null
@@ -206,7 +206,8 @@ class MerossCloudDevice extends EventEmitter {
         this.key = key
         this.userId = userId
         this.dev = dev
-        this.COMMAND_TIMEOUT = timeout || 20 * 1000
+
+        this.COMMAND_TIMEOUT = 20 * 1000
         this.status = 'init'
         this.queuedCommands = []
     }
