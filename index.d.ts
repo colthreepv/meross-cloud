@@ -22,46 +22,56 @@ import { MqttClient } from 'mqtt'
     domain: string
     reservedDomain: string
   }
-  
+
+  export interface MerossHeaders {
+    messageId: string;
+    namespace: string;
+    method: string;
+    payloadVersion: number;
+    from: string;
+    timestamp: number;
+    timestampMs: number;
+    sign: string;
+  }
+  export interface MerossMessage<T> {
+    header: MerossHeaders
+    payload: T
+  }
   export interface GetControlPowerConsumptionXResponse {
-    consumptionx: {
-      date: string
-      /**
-      * timestamp, utc.
-      * has to be multiplied by 1000 to use on new Date(time)
-      */
-      time: number
-      value: number
-    }[]
+    date: string
+    /**
+    * timestamp, utc.
+    * has to be multiplied by 1000 to use on new Date(time)
+    */
+    time: number
+    value: number
   }
   export interface GetControlElectricityResponse {
-    electricity: {
-      channel: number
-      /**
-      * current in decimilliAmp. Has to get divided by 10000 to get Amp(s)
-      */
-      current: number
-      /**
-      * voltage in deciVolt. Has to get divided by 10 to get Volt(s)
-      */
-      voltage: number
-      /**
-      * power in milliWatt. Has to get divided by 1000 to get Watt(s)
-      */
-      power: number
-      config: {
-        voltageRatio: number
-        electricityRatio: number
-      }
+    channel: number
+    /**
+    * current in decimilliAmp. Has to get divided by 10000 to get Amp(s)
+    */
+    current: number
+    /**
+    * voltage in deciVolt. Has to get divided by 10 to get Volt(s)
+    */
+    voltage: number
+    /**
+    * power in milliWatt. Has to get divided by 1000 to get Watt(s)
+    */
+    power: number
+    config: {
+      voltageRatio: number
+      electricityRatio: number
     }
   }
-  
+
   export interface CloudOptions {
     email: string
     password: string
     logger?: Function
   }
-  
+
   export type Callback<T> = (error: Error | null, data: T) => void
   export type ErrorCallback = (error: Error | null) => void
   export type DeviceInitializedEvent = 'deviceInitialized'
@@ -81,7 +91,7 @@ import { MqttClient } from 'mqtt'
     authenticatedPost(url: string, paramsData: Object, callback: Callback<any>): void
     authenticatedPost(url: string, paramsData: Object): Promise<any>
   }
-  
+
   export class MerossCloudDevice extends EventEmitter {
     clientResponseTopic: string
     waitingMessageIds: Record<string, any>
@@ -111,8 +121,8 @@ import { MqttClient } from 'mqtt'
     getConfigWifiList(): Promise<void>
     getConfigTrace(): Promise<void>
     getControlPowerConsumption(): Promise<void>
-    getControlPowerConsumptionX(): Promise<GetControlPowerConsumptionXResponse>
-    getControlElectricity(): Promise<GetControlElectricityResponse>
+    getControlPowerConsumptionX(): Promise<MerossMessage<GetControlPowerConsumptionXResponse>>
+    getControlElectricity(): Promise<MerossMessage<GetControlElectricityResponse>>
 
     controlToggle(onoff: boolean, callback: Callback<any>): number
     controlToggleX(channel: any, onoff: boolean, callback: Callback<any>): number
@@ -121,6 +131,6 @@ import { MqttClient } from 'mqtt'
     controlLight(light: any, callback: Callback<any>): number
     setSystemDNDMode(onoff: boolean, callback: Callback<any>): number
   }
-  
+
   export default MerossCloud
 }

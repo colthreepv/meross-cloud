@@ -207,9 +207,7 @@ class MerossCloud extends EventEmitter {
 }
 
 class MerossCloudDevice extends EventEmitter {
-    COMMAND_TIMEOUT = 5000;
-
-    constructor(token, key, userId, dev) {
+    constructor(token, key, userId, dev, timeout) {
         super();
 
         this.clientResponseTopic = null;
@@ -219,6 +217,7 @@ class MerossCloudDevice extends EventEmitter {
         this.key = key;
         this.userId = userId;
         this.dev = dev;
+        this.COMMAND_TIMEOUT = timeout || 20 * 1000;
         this.status = 'init';
         this.queuedCommands = [];
     }
@@ -278,15 +277,21 @@ class MerossCloudDevice extends EventEmitter {
             if (message.header.from && !message.header.from.includes(this.dev.uuid)) return;
             // {"header":{"messageId":"14b4951d0627ea904dd8685c480b7b2e","namespace":"Appliance.Control.ToggleX","method":"PUSH","payloadVersion":1,"from":"/appliance/1806299596727829081434298f15a991/publish","timestamp":1539602435,"timestampMs":427,"sign":"f33bb034ac2d5d39289e6fa3dcead081"},"payload":{"togglex":[{"channel":0,"onoff":0,"lmTime":1539602434},{"channel":1,"onoff":0,"lmTime":1539602434},{"channel":2,"onoff":0,"lmTime":1539602434},{"channel":3,"onoff":0,"lmTime":1539602434},{"channel":4,"onoff":0,"lmTime":1539602434}]}}
 
+            // if the payload has only one value, flatten it
+            if (message.payload && typeof message.payload === 'object') {
+                const keys = Object.keys(message.payload)
+                if (keys.length === 1) message.payload = message.payload[keys[0]]
+            }
+
             // If the message is the RESP for some previous action, process return the control to the "stopped" method.
             const resolveForThisMessage = this.waitingMessageIds[message.header.messageId];
             if (resolveForThisMessage != null) {
-                resolveForThisMessage(message.payload || message)
+                resolveForThisMessage(message)
                 delete this.waitingMessageIds[message.header.messageId];
             }
             else if (message.header.method === "PUSH") { // Otherwise process it accordingly
                 const namespace = message.header ? message.header.namespace : '';
-                this.emit('data', namespace, message.payload || message);
+                this.emit('data', namespace, message);
             }
             this.emit('rawData', message);
         });
