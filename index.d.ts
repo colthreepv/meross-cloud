@@ -84,9 +84,13 @@ import { MqttClient } from 'mqtt'
     connect (callback: Callback<number>): void
     connect (): Promise<MerossCloudDevice[]>
 
-    on(name: DeviceInitializedEvent, handler: DeviceInitializedCallback): this
-
     connectDevice(deviceId: string, deviceObj: MerossCloudDevice, dev: DeviceDefinition): MerossCloudDevice
+    getDevice (uuid: string): MerossCloudDevice
+    getDeviceList (callback: Callback<MerossCloudDevice[]>): void
+    getDeviceList (): Promise<MerossCloudDevice[]>
+    disconnectAll (force: boolean): void
+
+    on(name: DeviceInitializedEvent, handler: DeviceInitializedCallback): this
 
     authenticatedPost(url: string, paramsData: Object, callback: Callback<any>): void
     authenticatedPost(url: string, paramsData: Object): Promise<any>
