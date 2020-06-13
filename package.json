@@ -12,7 +12,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/Apollon77/meross-cloud"
+        "url": "https://github.com/colthreepv/meross-cloud"
     },
     "dependencies": {
         "mqtt": "^3.0.0",
@@ -33,7 +33,7 @@
         "sinon": "^8.0.0"
     },
     "bugs": {
-        "url": "https://github.com/Apollon77/meross-cloud/issues"
+        "url": "https://github.com/colthreepv/meross-cloud/issues"
     },
     "main": "index.js",
     "types": "index.d.ts",
