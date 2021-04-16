@@ -19,6 +19,10 @@ max_line_length = 80
 indent_size = 4
 max_line_length = 80
 
+# Use 4 spaces for the Javascript files
+[*.ts]
+indent_size = 4
+max_line_length = 80
 
 # The JSON files contain newlines inconsistently
 [*.json]
