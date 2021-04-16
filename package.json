@@ -1,6 +1,6 @@
 {
     "name": "meross-cloud",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "description": "Control Meross cloud devices using nodejs",
     "author": "Ingo Fischer <iobroker@fischer-ka.de>",
     "contributors": [],
@@ -22,15 +22,15 @@
     "devDependencies": {
         "chai": "^4.2.0",
         "eslint": "^7.2.0",
-        "eslint-config-standard": "^14.1.0",
+        "eslint-config-standard": "^16.0.2",
         "eslint-plugin-import": "^2.20.1",
         "eslint-plugin-node": "^11.0.0",
-        "eslint-plugin-promise": "^4.2.1",
-        "eslint-plugin-standard": "^4.0.1",
+        "eslint-plugin-promise": "^5.1.0",
+        "eslint-plugin-standard": "^5.0.0",
         "istanbul": "*",
         "mocha": "^8.0.1",
-        "nock": "^12.0.3",
-        "sinon": "^9.0.2"
+        "nock": "^13.0.11",
+        "sinon": "^10.0.0"
     },
     "bugs": {
         "url": "https://github.com/colthreepv/meross-cloud/issues"
