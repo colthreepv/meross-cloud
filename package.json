@@ -1,43 +1,43 @@
 {
-    "name": "meross-cloud",
-    "version": "1.4.1",
-    "description": "Control Meross cloud devices using nodejs",
-    "author": "Ingo Fischer <iobroker@fischer-ka.de>",
-    "contributors": [],
-    "homepage": "",
-    "license": "MIT",
-    "keywords": [
-        "Meross",
-        "WLAN devices"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/colthreepv/meross-cloud"
-    },
-    "dependencies": {
-        "mqtt": "^4.1.0",
-        "promise-timeout": "^1.3.0",
-        "request": "^2.88.0"
-    },
-    "devDependencies": {
-        "chai": "^4.2.0",
-        "eslint": "^7.2.0",
-        "eslint-config-standard": "^16.0.2",
-        "eslint-plugin-import": "^2.20.1",
-        "eslint-plugin-node": "^11.0.0",
-        "eslint-plugin-promise": "^5.1.0",
-        "eslint-plugin-standard": "^5.0.0",
-        "istanbul": "*",
-        "mocha": "^8.0.1",
-        "nock": "^13.0.11",
-        "sinon": "^10.0.0"
-    },
-    "bugs": {
-        "url": "https://github.com/colthreepv/meross-cloud/issues"
-    },
-    "main": "index.js",
-    "types": "index.d.ts",
-    "scripts": {
-        "test": "node node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec"
-    }
+  "name": "meross-cloud",
+  "version": "1.4.1",
+  "description": "Control Meross cloud devices using nodejs",
+  "author": "Ingo Fischer <iobroker@fischer-ka.de>",
+  "contributors": [],
+  "homepage": "",
+  "license": "MIT",
+  "keywords": [
+    "Meross",
+    "WLAN devices"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/colthreepv/meross-cloud"
+  },
+  "dependencies": {
+    "mqtt": "^4.1.0",
+    "promise-timeout": "^1.3.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^7.2.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-standard": "^5.0.0",
+    "istanbul": "*",
+    "mocha": "^8.0.1",
+    "nock": "^13.0.11",
+    "sinon": "^10.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/colthreepv/meross-cloud/issues"
+  },
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "node node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec"
+  }
 }
