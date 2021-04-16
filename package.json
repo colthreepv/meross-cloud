@@ -3,7 +3,9 @@
   "version": "2.0.0",
   "description": "Control Meross cloud devices using nodejs",
   "author": "Ingo Fischer <iobroker@fischer-ka.de>",
-  "contributors": ["Valerio Coltre <valerio.coltre@gmail.com>"],
+  "contributors": [
+    "Valerio Coltre <valerio.coltre@gmail.com>"
+  ],
   "homepage": "",
   "license": "MIT",
   "keywords": [
@@ -19,8 +21,7 @@
   "dependencies": {
     "got": "^11.8.2",
     "mqtt": "^4.1.0",
-    "promise-timeout": "^1.3.0",
-    "request": "^2.88.0"
+    "promise-timeout": "^1.3.0"
   },
   "devDependencies": {
     "@types/promise-timeout": "^1.3.0",
