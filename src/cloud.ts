@@ -53,22 +53,20 @@ export class MerossCloud extends EventEmitter {
             'User-Agent': 'okhttp/3.6.0'
         }
 
-        const payload = {
-            params: loginParams,
-            sign: md5hash,
-            timestamp: timestampMillis,
-            nonce: nonce
-        }
-
         const options: GotOptions = {
             method: 'POST',
             headers: headers,
-            form: payload,
+            form: {
+                params: loginParams,
+                sign: md5hash,
+                timestamp: timestampMillis,
+                nonce: nonce
+            },
             responseType: 'json'
         }
         this.options.logger && this.options.logger('HTTP-Call: ' + JSON.stringify(options))
         // Perform the request.
-        const response = await got<GenericMerossResponse<T>>(url)
+        const response = await got<GenericMerossResponse<T>>(url, options)
 
         if(response.statusCode !== 200 || response.body == null) throw new Error(`HTTP-Response Code: ${response.statusCode}`)
         this.options.logger && this.options.logger('HTTP-Response OK: ' + response.rawBody.toString())

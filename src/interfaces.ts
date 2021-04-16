@@ -40,8 +40,10 @@ export interface MerossMessage<T> {
 }
 
 export interface GenericMerossResponse<T> {
+    apiStatus: number
+    sysStatus: number
     info: string // could be 'Success' or something else
-    apiStatus: string
+    timeStamp: number
     data: T
 }
 
