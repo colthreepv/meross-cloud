@@ -43,9 +43,10 @@
   "bugs": {
     "url": "https://github.com/colthreepv/meross-cloud/issues"
   },
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc --project tsconfig.json",
+    "postinstall": "tsc --project tsconfig.json",
     "test": "node node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec"
   }
 }
