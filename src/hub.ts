@@ -1,5 +1,5 @@
+import { MerossCloudDevice } from './device'
 import { DeviceDefinition } from './interfaces'
-import { MerossCloudDevice } from './meross-device'
 
 export class MerossCloudHubDevice extends MerossCloudDevice {
     subDeviceList: any[]

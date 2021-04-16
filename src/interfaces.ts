@@ -23,8 +23,6 @@ export interface DeviceDefinition {
   reservedDomain: string
 }
 
-export interface MerossLoginResponse {}
-
 export interface MerossHeaders {
     messageId: string;
     namespace: string;
