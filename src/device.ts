@@ -4,6 +4,7 @@ import { connect as mqttConnect, MqttClient } from 'mqtt'
 import { timeout } from 'promise-timeout'
 
 import { DeviceDefinition, MerossMessage } from './interfaces'
+import { ConsumptionXResponse, ElectricityResponse } from './responses'
 import { generateRandomString } from './utils'
 
 type DeviceStatus = 'init' | 'online' | 'offline'
@@ -133,7 +134,11 @@ export class MerossCloudDevice extends EventEmitter {
       this.client.end(force)
   }
 
-  async publishMessage (method: 'GET' | 'SET', namespace: string, payload: any): Promise<MerossMessage<any>> {
+  async publishMessage<T = unknown>(
+      method: 'GET' | 'SET',
+      namespace: string,
+      payload: any,
+      ): Promise<MerossMessage<T>> {
       // helper to queue commands before the device is connected
       if (this.status !== 'online') {
           let connectResolve: PromiseResolver
@@ -143,7 +148,7 @@ export class MerossCloudDevice extends EventEmitter {
           this.queuedCommands.push(connectResolve!)
           // when the device is connected, the futureCommand will be executed
           // that is exactly the same command issued now, but in the future
-          const futureCommand = () => this.publishMessage(method, namespace, payload)
+          const futureCommand = () => this.publishMessage<T>(method, namespace, payload)
           // we return immediately an 'idle' promise, that when it gets resolved
           // it will then execute the futureCommand
           // IF the above takes too much time, the command will fail with a TimeoutError
@@ -153,7 +158,7 @@ export class MerossCloudDevice extends EventEmitter {
       let commandResolve: MessageResolver
       // create of an waiting Promise, it will get (maybe) resolved if the device
       // responds in time
-      const commandPromise = new Promise<MerossMessage<any>>((resolve) => { commandResolve = resolve })
+      const commandPromise = new Promise<MerossMessage<T>>((resolve) => { commandResolve = resolve })
 
       // if not subscribed und so ...
       const messageId = createHash('md5').update(generateRandomString(16)).digest('hex')
@@ -243,11 +248,11 @@ export class MerossCloudDevice extends EventEmitter {
   }
 
   async getControlPowerConsumptionX () {
-      return this.publishMessage('GET', 'Appliance.Control.ConsumptionX', {})
+      return this.publishMessage<ConsumptionXResponse>('GET', 'Appliance.Control.ConsumptionX', {})
   }
 
   async getControlElectricity () {
-      return this.publishMessage('GET', 'Appliance.Control.Electricity', {})
+      return this.publishMessage<ElectricityResponse>('GET', 'Appliance.Control.Electricity', {})
   }
 
   async controlToggle (onoff: boolean) {
