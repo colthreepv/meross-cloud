@@ -27,7 +27,7 @@ export class MerossCloud extends EventEmitter {
     constructor (options: CloudOptions) {
         super()
 
-        this.options = options || {}
+        this.options = options
         this.token = null
         this.key = null
         this.userId = null

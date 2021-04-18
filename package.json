@@ -1,12 +1,12 @@
 {
-  "name": "meross-cloud",
-  "version": "2.0.0",
+  "name": "meross-cloud-ts",
+  "version": "2.0.0-rc.1",
   "description": "Control Meross cloud devices using nodejs",
   "author": "Ingo Fischer <iobroker@fischer-ka.de>",
   "contributors": [
     "Valerio Coltre <valerio.coltre@gmail.com>"
   ],
-  "homepage": "",
+  "homepage": "https://github.com/colthreepv/meross-cloud",
   "license": "MIT",
   "keywords": [
     "Meross",
