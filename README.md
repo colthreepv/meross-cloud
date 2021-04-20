@@ -1,4 +1,4 @@
-**THIS IS A FORK OF** [meross-cloud](npm) [(github)](meross-github)  
+**THIS IS A FORK OF** [meross-cloud][meross-npm] [(github)][meross-github]  
 # meross-cloud-ts 
 Library that allows to login into Meross cloud server, read the registered devices and open connections to the MQTT cloud server to get the datatosign
 
@@ -26,6 +26,6 @@ Those commands get the appropriate response through MQTT channel
 * Typescript adaptation (just added types, not rewrite)
 * Split in multiple files relative to the classes
 * No callbacks, only Promises (it's 2021, sorry!)
-* If requested command does not receive a response, generates a [Timeout error](timeout-npm)
+* If requested command does not receive a response, generates a [Timeout error][timeout-npm]
 
 [timeout-npm]: https://www.npmjs.com/package/promise-timeout
